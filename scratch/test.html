@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Video Seek Test</title></head>
+<body>
+<video id="v" src="../livingclip3.mp4" muted playsinline preload="auto"></video>
+<div id="results"></div>
+<script>
+const v = document.getElementById('v');
+const res = document.getElementById('results');
+v.addEventListener('loadedmetadata', () => {
+    let times = [0.5, 1.0, 1.5, 2.0, 2.5, 2.2, 1.8, 1.0, 0.2];
+    let idx = 0;
+    let logs = [];
+    function next() {
+        if (idx >= times.length) {
+            res.textContent = JSON.stringify(logs, null, 2);
+            console.log('RESULTS:' + JSON.stringify(logs));
+            return;
+        }
+        let t = times[idx++];
+        let s0 = performance.now();
+        v.currentTime = t;
+        v.addEventListener('seeked', function onSeeked() {
+            v.removeEventListener('seeked', onSeeked);
+            logs.push({ target: t, actual: v.currentTime, elapsedMs: Math.round(performance.now() - s0) });
+            next();
+        });
+    }
+    next();
+});
+</script>
+</body>
+</html>
